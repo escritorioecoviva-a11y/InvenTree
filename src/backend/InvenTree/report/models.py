@@ -36,11 +36,15 @@ from plugin.registry import registry
 
 try:
     from weasyprint import HTML
-except OSError as err:  # pragma: no cover
-    print(f'OSError: {err}')
-    print("Unable to import 'weasyprint' module.")
-    print('You may require some further system packages to be installed.')
-    sys.exit(1)
+except Exception as err:  # pragma: no cover
+    # WeasyPrint depends on native libraries (cairo/pango/etc) which may not
+    # be present in all development environments (especially Windows). Do
+    # not abort startup here; instead disable WeasyPrint usage and allow the
+    # application to continue (features requiring WeasyPrint will be unavailable).
+    print(f'WeasyPrint import failed: {err}')
+    print("WeasyPrint features will be disabled. To enable them, install the native\n"
+          "libraries as per: https://doc.courtbouillon.org/weasyprint/stable/first_steps.html")
+    HTML = None
 
 
 logger = structlog.getLogger('inventree')
